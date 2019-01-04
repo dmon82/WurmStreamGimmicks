@@ -72,7 +72,7 @@ namespace WurmStreamGimmicks {
             get { return m_Version; }
         }
 
-        public static readonly Logger Logger = new Logger("Core", LogLevel.Always);
+        internal static readonly Logger Logger = new Logger("Core", LogLevel.Always);
 
         private static bool _Running = true;
         private static State _State = State.Idle;
