@@ -1,0 +1,7 @@
+*.zip
+*.pfx
+*.user
+**/publish
+**/bin
+**/obj
+*.suo
