@@ -36,9 +36,9 @@ namespace WurmStreamGimmicks {
         public event FileSystemEventHandler Changed;
 
         public FileWatcher(string fullpath) {
-            if (!File.Exists(fullpath))
-                //throw new FileNotFoundException(fullpath);
-                File.Create(fullpath);
+            if (!Directory.Exists(Path.GetDirectoryName(fullpath))) Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
+
+            if (!File.Exists(fullpath)) File.Create(fullpath).Dispose();
 
             _Length = new FileInfo(fullpath).Length;
             _Path = fullpath;

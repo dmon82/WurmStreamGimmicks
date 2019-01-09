@@ -12,6 +12,21 @@ namespace WurmStreamGimmicks {
         string Name { get; }
 
         /// <summary>
+        ///     Gets whether or not this gimmick is actively tracked once the program is set to enabled status.
+        /// </summary>
+        bool Enabled { get; set; }
+
+        /// <summary>
+        ///     Gets the output file the Compile() is written to.
+        /// </summary>
+        string OutputFile { get; set; }
+
+        /// <summary>
+        ///     The output message template being used.
+        /// </summary>
+        string Template { get; }
+
+        /// <summary>
         ///     Gets whether or not log messages from all clients are monitored or just the specific ones. Overrides <see cref="IGimmick.Players"/> list.
         /// </summary>
         bool Collective { get; }
@@ -19,7 +34,7 @@ namespace WurmStreamGimmicks {
         /// <summary>
         ///     Gets the list of players that logs are monitored. If <see cref="IGimmick.Collective"/> is set to true, the list is ignored.
         /// </summary>
-        List<Player> Players { get; }
+        List<string> Players { get; }
 
         /// <summary>
         ///     Watch a line from event, combat, or skills log.
@@ -32,5 +47,16 @@ namespace WurmStreamGimmicks {
         /// </summary>
         /// <returns>Gimmick text output.</returns>
         string Compile();
+
+        /// <summary>
+        ///     Method to save gimmick data to file.
+        /// </summary>
+        void Serialise(MyWriter writer);
+
+        /// <summary>
+        ///     Method to read gimmick data from file.
+        /// </summary>
+        /// <param name="reader"></param>
+        void Deserialise(MyReader reader);
     }
 }

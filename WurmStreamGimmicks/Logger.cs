@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace WurmStreamGimmicks {
     internal class Logger : IDisposable {
+        public delegate void LogEventHandler(string message);
+
         private string _Name;
         public string Name {
             get { return _Name; }
@@ -20,6 +22,8 @@ namespace WurmStreamGimmicks {
         }
 
         private StreamWriter _Writer;
+
+        public event LogEventHandler Logged;
 
         public Logger(string name, LogLevel level) {
             if (string.IsNullOrEmpty(name))
@@ -75,8 +79,10 @@ namespace WurmStreamGimmicks {
             _Writer.WriteLine(output);
             _Writer.Flush();
 
-            if (level >= _Level)
+            if (level >= _Level) {
                 Console.WriteLine(output);
+                if (Logged != null) Logged(output);
+            }
         }
 
         public void Log(LogLevel level, string format, object arg0) {

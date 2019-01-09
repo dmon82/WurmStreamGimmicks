@@ -2,6 +2,7 @@
 
 namespace WurmStreamGimmicks {
     internal enum LogLevel {
+        Always,
         Finest,
         Finer,
         Fine,
@@ -10,7 +11,6 @@ namespace WurmStreamGimmicks {
         Info,
         Warning,
         Severe,
-        Always,
         Silent
     }
 }

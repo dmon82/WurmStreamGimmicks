@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 namespace WurmStreamGimmicks {
     class Player {
         public static Dictionary<string, Player> Table = new Dictionary<string, Player>();
+        static Player() {
+            string[] playernames = Directory.GetDirectories(Core.Config.PlayersFolder);
+            foreach (string playername in playernames) {
+                string substr = playername.Substring(playername.LastIndexOf('\\') + 1);
+                Table.Add(substr, new Player(substr));
+                substr = null;
+            }
+            playernames = null;
+        }
+
+        private bool _Watching = false;
+        public bool Watching { get { return _Watching; } }
 
         public string Name { get; protected set; }
         private FileWatcher EventsWatcher;
@@ -17,12 +29,12 @@ namespace WurmStreamGimmicks {
         private StreamReader CombatReader;
         private StreamReader SkillsReader;
 
-        private List<BaseGimmick> _Gimmicks = new List<BaseGimmick>();
-        public List<BaseGimmick> Gimmicks {
+        private List<IGimmick> _Gimmicks = new List<IGimmick>();
+        public List<IGimmick> Gimmicks {
             get { return _Gimmicks; }
         }
 
-        public BaseGimmick this[int index] {
+        public IGimmick this[int index] {
             get {
                 if (index < 0 || index >= _Gimmicks.Count)
                     return null;
@@ -33,32 +45,43 @@ namespace WurmStreamGimmicks {
 
         public Player(string name) {
             Name = name;
-
-            string eventFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Event.{1}-{2:D2}.txt", name, DateTime.Now.Year, DateTime.Now.Month);
-            string combatFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Combat.{1}-{2:D2}.txt", name, DateTime.Now.Year, DateTime.Now.Month);
-            string skillsFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Skills.{1}-{2:D2}.txt", name, DateTime.Now.Year, DateTime.Now.Month);
-
-            EventsWatcher = new FileWatcher(eventFile);
-            CombatWatcher = new FileWatcher(combatFile);
-            SkillsWatcher = new FileWatcher(skillsFile);
-
-            EventsReader = new StreamReader(new FileStream(eventFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-            CombatReader = new StreamReader(new FileStream(combatFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-            SkillsReader = new StreamReader(new FileStream(skillsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
         }
 
         public void BeginWatch() {
-            EventsWatcher.EnableRaisingEvents =
-                CombatWatcher.EnableRaisingEvents =
-                SkillsWatcher.EnableRaisingEvents = true;
+            Core.Logger.Log(LogLevel.Info, "Starting watch on {0}.", this);
+
+            if (!_Watching) {
+                Core.Logger.Log(LogLevel.Info, "Have to initialise watch on {0} first though.", this);
+
+                string eventFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Event.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
+                string combatFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Combat.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
+                string skillsFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Skills.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
+
+                EventsWatcher = new FileWatcher(eventFile);
+                CombatWatcher = new FileWatcher(combatFile);
+                SkillsWatcher = new FileWatcher(skillsFile);
+
+                EventsReader = new StreamReader(new FileStream(eventFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                CombatReader = new StreamReader(new FileStream(combatFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                SkillsReader = new StreamReader(new FileStream(skillsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+
+                EventsWatcher.EnableRaisingEvents =
+                    CombatWatcher.EnableRaisingEvents =
+                    SkillsWatcher.EnableRaisingEvents = true;
+            }
 
             EventsReader.ReadToEnd();
             CombatReader.ReadToEnd();
             SkillsReader.ReadToEnd();
 
-            EventsWatcher.Changed += EventsWatcher_Changed;
-            CombatWatcher.Changed += CombatWatcher_Changed;
-            SkillsWatcher.Changed += SkillsWatcher_Changed;
+            if (!_Watching) {
+                Core.Logger.Log(LogLevel.Info, "Adding watch callbacks on {0}.", this);
+
+                EventsWatcher.Changed += EventsWatcher_Changed;
+                CombatWatcher.Changed += CombatWatcher_Changed;
+                SkillsWatcher.Changed += SkillsWatcher_Changed;
+                _Watching = true;
+            }
         }
 
         void SkillsWatcher_Changed(object sender, FileSystemEventArgs e) {
@@ -86,13 +109,68 @@ namespace WurmStreamGimmicks {
             int count = _Gimmicks.Count;
 
             for (int i = 0; i < count; i++)
-                this[i].Watch(line);
+                if (this[i].Enabled) this[i].Watch(line);
         }
 
         public void EndWatch() {
+            if (!_Watching)
+                return;
+
+            Core.Logger.Log(LogLevel.Info, "Ending watch on {0}.", this);
+
             EventsWatcher.EnableRaisingEvents =
                 CombatWatcher.EnableRaisingEvents =
                 SkillsWatcher.EnableRaisingEvents = false;
+
+            EventsWatcher.Changed -= EventsWatcher_Changed;
+            CombatWatcher.Changed -= CombatWatcher_Changed;
+            SkillsWatcher.Changed -= SkillsWatcher_Changed;
+
+            _Watching = false;
+        }
+
+        public void Dispose() {
+            if (_Watching)
+                EndWatch();
+            
+            if (EventsWatcher != null) EventsWatcher.Dispose();
+            EventsWatcher = null;
+
+            if (CombatWatcher != null) CombatWatcher.Dispose();
+            CombatWatcher = null;
+
+            if (SkillsWatcher != null) SkillsWatcher.Dispose();
+            SkillsWatcher = null;
+
+            if (EventsReader != null) EventsReader.Dispose();
+            EventsReader = null;
+
+            if (CombatReader != null) CombatReader.Dispose();
+            CombatReader = null;
+
+            if (SkillsReader != null) SkillsReader.Dispose();
+            SkillsReader = null;
+
+            _Gimmicks.Clear();
+            _Gimmicks = null;
+
+            this.Name = null;
+        }
+
+        public override bool Equals(object obj) {
+            if (obj == null) return false;
+
+            if (obj is string)
+                return ((string)obj).Equals(this.Name);
+
+            if (obj is Player)
+                return ((Player)obj).Name.Equals(this.Name);
+
+            return false;
+        }
+
+        public override int GetHashCode() {
+            return this.Name.GetHashCode();
         }
 
         public override string ToString() {
