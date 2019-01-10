@@ -88,28 +88,28 @@ namespace WurmStreamGimmicks {
             string line = string.Empty;
 
             while (!string.IsNullOrWhiteSpace(line = SkillsReader.ReadLine()))
-                Watch(line);
+                Watch(line, LogType.Skills);
         }
 
         void CombatWatcher_Changed(object sender, FileSystemEventArgs e) {
             string line = string.Empty;
 
             while (!string.IsNullOrWhiteSpace(line = CombatReader.ReadLine()))
-                Watch(line);
+                Watch(line, LogType.Combat);
         }
 
         void EventsWatcher_Changed(object sender, System.IO.FileSystemEventArgs e) {
             string line = string.Empty;
 
             while (!string.IsNullOrWhiteSpace(line = EventsReader.ReadLine()))
-                Watch(line);
+                Watch(line, LogType.Events);
         }
 
-        public void Watch(string line) {
+        public void Watch(string line, LogType logType) {
             int count = _Gimmicks.Count;
 
             for (int i = 0; i < count; i++)
-                if (this[i].Enabled) this[i].Watch(line);
+                if (this[i].Enabled && (this[i].Logs & logType) == logType) this[i].Watch(line);
         }
 
         public void EndWatch() {

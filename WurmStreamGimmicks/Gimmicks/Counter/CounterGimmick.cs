@@ -10,6 +10,7 @@ namespace WurmStreamGimmicks {
         public static readonly string Tooltip = "%c = global counter, %s = session counter";
 
         public string Name { get; set; }
+        public LogType Logs { get; set; }
         public string Template { get; set; }
         public bool Collective { get; set; }
         public List<string> Players { get; set; } // TODO as string, no reference, since we replace the objects a lot atm in frmMain.CheckPlayersFolder()
@@ -67,6 +68,7 @@ namespace WurmStreamGimmicks {
             writer.Write((int)0); // Version.
 
             writer.Write(Name);
+            writer.Write((int)Logs);
             writer.Write(Pattern);
             writer.Write(Template);
             writer.Write(Collective);
@@ -85,6 +87,7 @@ namespace WurmStreamGimmicks {
             int version = reader.ReadInt();
 
             Name = reader.ReadString();
+            Logs = (LogType)reader.ReadInt();
             Pattern = reader.ReadString();
             Template = reader.ReadString();
             Collective = reader.ReadBoolean();

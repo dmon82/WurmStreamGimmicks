@@ -150,6 +150,10 @@ namespace WurmStreamGimmicks {
                     frm.chkSkills.Checked,
                     players);
                 gimmick.OutputFile = frm.txtOutputFile.Text;
+                gimmick.Logs =
+                    (frm.chkEvents.Checked ? LogType.Events : LogType.None) |
+                    (frm.chkCombat.Checked ? LogType.Combat : LogType.None) |
+                    (frm.chkSkills.Checked ? LogType.Skills : LogType.None); // Bitmask.
             }
             else {
                 counter.Name = frm.txtName.Text;
@@ -162,6 +166,10 @@ namespace WurmStreamGimmicks {
                 counter.SessionCount = (int)frm.numSession.Value;
                 counter.GlobalCount = (int)frm.numGlobal.Value;
                 counter.OutputFile = frm.txtOutputFile.Text;
+                counter.Logs =
+                    (frm.chkEvents.Checked ? LogType.Events : LogType.None) |
+                    (frm.chkCombat.Checked ? LogType.Combat : LogType.None) |
+                    (frm.chkSkills.Checked ? LogType.Skills : LogType.None); // Bitmask.
 
                 if (!System.IO.File.Exists(counter.OutputFile))
                     System.IO.File.CreateText(counter.OutputFile).Dispose();

@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace WurmStreamGimmicks {
     class Config {
         public string Filename { get; protected set; }
         public string PlayersFolder { get; set; }
         public List<IGimmick> Gimmicks { get; protected set; }
-        public TimeSpan GimmickSwitchInterval { get; protected set; }
-        
+        public Size MainWindowSize { get; set; }
+        public int[] GimmickColumnSize { get; set; }
+
         public Config(string filename) {
             Filename = filename;
             Gimmicks = new List<IGimmick>();
             PlayersFolder = string.Empty;
-            GimmickSwitchInterval = TimeSpan.Zero;
+            MainWindowSize = new Size(569, 529);
+            GimmickColumnSize = new int[] { 78, 112, 42, 273 };
         }
 
         public Config(MyReader reader) {
@@ -50,7 +53,11 @@ namespace WurmStreamGimmicks {
 
             writer.Write(Filename);
             writer.Write(PlayersFolder);
-            writer.Write(GimmickSwitchInterval.Ticks);
+            writer.Write(MainWindowSize.Width);
+            writer.Write(MainWindowSize.Height);
+            writer.Write(GimmickColumnSize.Length);
+            for (int i = 0; i < GimmickColumnSize.Length; i++)
+                writer.Write(GimmickColumnSize[i]);
 
             Core.Logger.Log(LogLevel.Debug, "Serialising gimmicks.");
 
@@ -70,11 +77,16 @@ namespace WurmStreamGimmicks {
 
             Filename = reader.ReadString();
             PlayersFolder = reader.ReadString();
-            GimmickSwitchInterval = TimeSpan.FromTicks(reader.ReadLong());
+            MainWindowSize = new Size(reader.ReadInt(), reader.ReadInt());
+            
+            int count = reader.ReadInt();
+            GimmickColumnSize = new int[count];
+            for (int i = 0; i < count; i++)
+                GimmickColumnSize[i] = reader.ReadInt();
 
             Core.Logger.Log(LogLevel.Debug, "Deserialising gimmicks.");
 
-            int count = reader.ReadInt();
+            count = reader.ReadInt();
             Gimmicks = new List<IGimmick>();
 
             while (count-- > 0) {

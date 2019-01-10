@@ -17,6 +17,11 @@ namespace WurmStreamGimmicks {
             Core.Logger.Logged += Logger_Logged;
             Core.Logger.Log(LogLevel.Config, "Starting main GUI.");
 
+            // Restore window and gimmick list column widths.
+            this.Size = Core.Config.MainWindowSize;
+            for (int i = 0; i < Core.Config.GimmickColumnSize.Length; i++)
+                listGimmicks.Columns[i].Width = Core.Config.GimmickColumnSize[i];
+
             // If the folder seems valid, set the enable/disable buttons and labels alright.
             if (CheckPlayersFolder()) {
                 cmdDisable.Visible =
@@ -30,7 +35,13 @@ namespace WurmStreamGimmicks {
             
             txtPlayersFolder.LostFocus += txtPlayersFolder_LostFocus;
 
+            listGimmicks.ListViewItemSorter = new GimmickListViewSorter();
             listGimmicks.DoubleClick += listGimmicks_DoubleClick;
+            listGimmicks.KeyUp += listGimmicks_KeyUp;
+            listGimmicks.ColumnClick += listGimmicks_ColumnClick;
+            listGimmicks.ColumnWidthChanged += listGimmicks_ColumnWidthChanged;
+
+            this.ResizeEnd += frmMain_ResizeEnd;
             /*
              * Gimmick list context menu
              * ***/
@@ -58,6 +69,56 @@ namespace WurmStreamGimmicks {
              * ***/
             foreach (IGimmick gimmick in Core.Config.Gimmicks)
                 AddGimmickToList(gimmick);
+        }
+
+        void listGimmicks_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e) {
+            Core.Config.GimmickColumnSize[e.ColumnIndex] =
+                listGimmicks.Columns[e.ColumnIndex].Width;
+        }
+
+        void frmMain_ResizeEnd(object sender, EventArgs e) {
+            Core.Config.MainWindowSize = this.Size;
+        }
+
+        void listGimmicks_ColumnClick(object sender, ColumnClickEventArgs e) {
+            GimmickListViewSorter sorter = (GimmickListViewSorter)listGimmicks.ListViewItemSorter;
+            
+            if (sorter.Column == e.Column) sorter.Ascending = !sorter.Ascending;
+            else { sorter.Column = e.Column; sorter.Ascending = true; }
+
+            listGimmicks.SuspendLayout();
+            listGimmicks.Sort();
+            listGimmicks.ResumeLayout();
+        }
+
+        void listGimmicks_KeyUp(object sender, KeyEventArgs e) {
+            ListViewItem lvi = null;
+
+            if (listGimmicks.SelectedItems.Count > 0)
+                lvi = listGimmicks.SelectedItems[0];
+
+            if (e.KeyCode == Keys.Delete) {
+                if (lvi == null) return;
+                int index = listGimmicks.SelectedItems.Count - 1;
+
+                for (int i = index; i >= 0; i--) {
+                    IGimmick gimmick = listGimmicks.Items[listGimmicks.SelectedIndices[i]].Tag as IGimmick;
+
+                    // Remove gimmick from players.
+                    foreach (string playername in gimmick.Players)
+                        Player.Table[playername].Gimmicks.Remove(gimmick);
+
+                    // Remove gimmick globally from config.
+                    Core.Config.Gimmicks.Remove(gimmick);
+
+                    // Remove gimmick from GUI.
+                    listGimmicks.Items.RemoveAt(listGimmicks.SelectedIndices[i]);
+                }
+            }
+            else if (e.KeyCode == Keys.Space) {
+                // Toggle active.
+                listGimmicks_DoubleClick(listGimmicks, new EventArgs());
+            }
         }
 
         void ConfigureGimmick_Click(object sender, EventArgs e) {
@@ -143,6 +204,10 @@ namespace WurmStreamGimmicks {
                 if (gimmick.Enabled && lvi.BackColor != Color.PaleGreen) lvi.BackColor = Color.PaleGreen;
                 else if (!gimmick.Enabled && lvi.BackColor != SystemColors.Window) lvi.BackColor = SystemColors.Window;
             }
+
+            listGimmicks.SuspendLayout();
+            listGimmicks.Sort();
+            listGimmicks.ResumeLayout();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e) {

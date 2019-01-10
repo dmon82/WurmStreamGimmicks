@@ -58,6 +58,7 @@
     <Compile Include="frmCounterGimmick.Designer.cs">
       <DependentUpon>frmCounterGimmick.cs</DependentUpon>
     </Compile>
+    <Compile Include="GimmickListViewSorter.cs" />
     <Compile Include="Gimmicks\Counter\CounterGimmick.cs" />
     <Compile Include="FelledTreesGimmick.cs" />
     <Compile Include="FileWatcher.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="IGimmick.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LogLevel.cs" />
+    <Compile Include="LogType.cs" />
     <Compile Include="MyReader.cs" />
     <Compile Include="MyWriter.cs" />
     <Compile Include="PartsRemainingGimmick.cs" />

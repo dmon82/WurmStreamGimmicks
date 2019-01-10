@@ -17,6 +17,11 @@ namespace WurmStreamGimmicks {
         bool Enabled { get; set; }
 
         /// <summary>
+        ///     LogType bitmask for Events, Combat, and Skills tab.
+        /// </summary>
+        LogType Logs { get; set; }
+
+        /// <summary>
         ///     Gets the output file the Compile() is written to.
         /// </summary>
         string OutputFile { get; set; }
