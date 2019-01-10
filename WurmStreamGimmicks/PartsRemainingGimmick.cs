@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WurmStreamGimmicks {
-    class PartsRemainingGimmick : BaseGimmick {
+    /*class PartsRemainingGimmick : BaseGimmick {
         private bool _Initialised = false;
         private int _TotalParts = 0;
         private int _Attached = 0;
@@ -55,5 +55,5 @@ namespace WurmStreamGimmicks {
 
             return String.Format("{0} parts remaining: {1:N0}", _Item, _TotalParts - _Attached);
         }
-    }
+    }*/
 }
