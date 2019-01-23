@@ -178,6 +178,11 @@
             // numSession
             // 
             this.numSession.Location = new System.Drawing.Point(101, 304);
+            this.numSession.Maximum = new decimal(new int[] {
+            1874919424,
+            2328306,
+            0,
+            0});
             this.numSession.Name = "numSession";
             this.numSession.Size = new System.Drawing.Size(120, 20);
             this.numSession.TabIndex = 17;
@@ -194,6 +199,11 @@
             // numGlobal
             // 
             this.numGlobal.Location = new System.Drawing.Point(101, 330);
+            this.numGlobal.Maximum = new decimal(new int[] {
+            1569325056,
+            23283064,
+            0,
+            0});
             this.numGlobal.Name = "numGlobal";
             this.numGlobal.Size = new System.Drawing.Size(120, 20);
             this.numGlobal.TabIndex = 19;

@@ -17,6 +17,8 @@ namespace WurmStreamGimmicks {
             Core.Logger.Logged += Logger_Logged;
             Core.Logger.Log(LogLevel.Config, "Starting main GUI.");
 
+            this.Text = String.Format("Wurm stream gimmicks {0}", Core.VersionString);
+
             // Restore window and gimmick list column widths.
             this.Size = Core.Config.MainWindowSize;
             for (int i = 0; i < Core.Config.GimmickColumnSize.Length; i++)

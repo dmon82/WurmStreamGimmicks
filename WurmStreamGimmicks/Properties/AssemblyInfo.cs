@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WurmStreamGimmicks")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Wurm Stream Gimmicks")]
+[assembly: AssemblyDescription("Gimmicks for streaming Wurm Online/Unlimited")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("WurmStreamGimmicks")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2019")]
+[assembly: AssemblyCompany("Ulviirala")]
+[assembly: AssemblyProduct("Wurm Stream Gimmicks")]
+[assembly: AssemblyCopyright("Copyright © Ulviirala 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
