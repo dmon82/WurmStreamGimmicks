@@ -55,7 +55,6 @@
             this.txtPlayersFolder.Name = "txtPlayersFolder";
             this.txtPlayersFolder.Size = new System.Drawing.Size(373, 20);
             this.txtPlayersFolder.TabIndex = 1;
-            this.txtPlayersFolder.Text = "d:\\games\\wurm\\players";
             // 
             // cmdBrowsePlayersFolder
             // 

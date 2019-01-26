@@ -11,6 +11,8 @@ using System.Windows.Forms;
 
 namespace WurmStreamGimmicks {
     public partial class frmMain : Form {
+        private bool _Running = false;
+
         public frmMain() {
             InitializeComponent();
 
@@ -18,6 +20,8 @@ namespace WurmStreamGimmicks {
             Core.Logger.Log(LogLevel.Config, "Starting main GUI.");
 
             this.Text = String.Format("Wurm stream gimmicks {0}", Core.VersionString);
+            this.txtPlayersFolder.Tag =
+                this.txtPlayersFolder.Text = Core.Config.PlayersFolder;
 
             // Restore window and gimmick list column widths.
             this.Size = Core.Config.MainWindowSize;
@@ -25,10 +29,9 @@ namespace WurmStreamGimmicks {
                 listGimmicks.Columns[i].Width = Core.Config.GimmickColumnSize[i];
 
             // If the folder seems valid, set the enable/disable buttons and labels alright.
-            if (CheckPlayersFolder()) {
-                cmdDisable.Visible =
-                    lblEnabled.Visible = false;
-            }
+            cmdEnable.Enabled = CheckPlayersFolder();
+            cmdDisable.Visible =
+                lblEnabled.Visible = false;
 
             Core.Logger.Log(LogLevel.Config, "Setting up event callbacks.");
             cmdEnable.Click += cmdEnable_Click;
@@ -215,7 +218,7 @@ namespace WurmStreamGimmicks {
         protected override void OnFormClosing(FormClosingEventArgs e) {
             Core.Logger.Logged -= Logger_Logged;
             
-            if (cmdDisable.Visible)
+            if (_Running)
                 ToggleEnabled();
                         
             base.OnFormClosing(e);
@@ -230,29 +233,44 @@ namespace WurmStreamGimmicks {
         }
 
         void ToggleEnabled() {
-            Core.Logger.Log(LogLevel.Info, "Toggling message monitoring.");
+            _Running = !_Running;
 
-            // Toggle buttons and labels.
-            lblDisabled.Visible =
-                cmdEnable.Visible = !cmdEnable.Visible;
+            Core.Logger.Log(LogLevel.Info, "Toggling message monitoring to {0}.", _Running ? "ON" : "OFF");
 
-            lblEnabled.Visible =
-                cmdDisable.Visible = !cmdDisable.Visible;
+            Core.Logger.Log(LogLevel.Finest, "Swapping Enable/Disable buttons.");
+
+            cmdEnable.Visible =
+                lblDisabled.Visible = !lblDisabled.Visible;
+
+            cmdDisable.Visible
+                = lblEnabled.Visible = !lblEnabled.Visible;
+
+            Core.Logger.Log(LogLevel.Finest, "Switching 'player folders' text box and 'browse' button to {0}.", !_Running ? "enabled" : "disabled");
 
             // No changes to path selection while running (may disable).
             txtPlayersFolder.Enabled =
-                cmdBrowsePlayersFolder.Enabled = !cmdDisable.Visible;
+                cmdBrowsePlayersFolder.Enabled = !_Running;
 
-            if (cmdDisable.Visible) { // Enabled 
+            if (_Running) {
+                Core.Logger.Log(LogLevel.Fine, "Initialising gimmicks (dry run).");
+
                 foreach (IGimmick gimmick in Core.Config.Gimmicks)
                     if (gimmick.Enabled) {
+                        Core.Logger.Log(LogLevel.Config, "Initialising enabled gimmick '{0}'.", gimmick.Name);
+
                         foreach (Player player in Player.Table.Values)
                             if (!player.Watching && player.Gimmicks.Contains(gimmick)) player.BeginWatch();
 
-                        File.WriteAllText(gimmick.OutputFile, gimmick.Compile());
+                        string output = gimmick.Compile();
+
+                        Core.Logger.Log(LogLevel.Config, "'{0}' output: '{1}'.", gimmick.Name, output);
+                        File.WriteAllText(gimmick.OutputFile, output);
+                        output = null;
                     }
             }
             else {
+                Core.Logger.Log(LogLevel.Config, "Ending watch on all players.");
+
                 foreach (Player player in Player.Table.Values)
                     if (player.Watching) player.EndWatch();
             }
@@ -264,27 +282,54 @@ namespace WurmStreamGimmicks {
             FolderBrowserDialog folder = new FolderBrowserDialog();
             folder.Description = "Pick Wurm's \"Players\" folder to parse logfiles from";
             folder.ShowNewFolderButton = false;
+            folder.SelectedPath = txtPlayersFolder.Text;
 
             DialogResult result = folder.ShowDialog();
 
-            if (result != System.Windows.Forms.DialogResult.OK)
+            if (result != System.Windows.Forms.DialogResult.OK) {
+                Core.Logger.Log(LogLevel.Config, "Browsing aborted.");
                 return;
+            }
 
-            txtPlayersFolder.Text = folder.SelectedPath;
+            if (folder.SelectedPath.Equals(txtPlayersFolder.Tag)) {
+                Core.Logger.Log(LogLevel.Config, "New new directory selected.");
+
+                return;
+            }
+
+            txtPlayersFolder.Tag 
+                = Core.Config.PlayersFolder
+                = txtPlayersFolder.Text 
+                = folder.SelectedPath;
+
+            Core.Logger.Log(LogLevel.Config, "Using '{0}' as players folder.", txtPlayersFolder.Text);
 
             folder.Dispose();
             folder = null;
-            CheckPlayersFolder();
+
+            lblEnabled.Enabled = CheckPlayersFolder();
+
+            if (!lblEnabled.Enabled) Core.Logger.Log(LogLevel.Warning, "Folder not valid.");
         }
 
         void txtPlayersFolder_LostFocus(object sender, EventArgs e) {
+            txtPlayersFolder.Text = txtPlayersFolder.Text.Trim();
+
             // Only check is the path textbox is enabled, which means the program is not running.
-            if (txtPlayersFolder.Enabled)
-                CheckPlayersFolder();
+            if (txtPlayersFolder.Enabled && (txtPlayersFolder.Tag == null || !txtPlayersFolder.Text.Equals(txtPlayersFolder.Tag))) {
+                cmdEnable.Enabled = CheckPlayersFolder();
+
+                // Update text box and config.
+                txtPlayersFolder.Tag
+                    = Core.Config.PlayersFolder
+                    = txtPlayersFolder.Text;
+            }
         }
 
         bool CheckPlayersFolder() {
             Core.Logger.Log(LogLevel.Config, "Checking validity of players folder path.");
+            Core.Config.PlayersFolder = txtPlayersFolder.Text;
+
             Core.Config.PlayersFolder = txtPlayersFolder.Text;
 
             if (!Directory.Exists(txtPlayersFolder.Text)) {
@@ -292,10 +337,11 @@ namespace WurmStreamGimmicks {
 
                 Core.Logger.Log(LogLevel.Config, "Chosen directory does not exist.");
 
-                return (listGimmicks.Enabled =
-                    cmdEnable.Enabled =
-                    cmdDisable.Enabled = false);
+                return false;
             }
+
+            if (Directory.GetDirectories(txtPlayersFolder.Text).Length <= 0)
+                Core.Logger.Log(LogLevel.Warning, "Chosen folder has no sub-folders (should be the player names).");
 
             txtPlayersFolder.BackColor = SystemColors.Window;
             Core.Logger.Log(LogLevel.Config, "Chosen directory exists.");
@@ -316,9 +362,7 @@ namespace WurmStreamGimmicks {
                 }
             }
 
-            return (listGimmicks.Enabled =
-                cmdEnable.Enabled =
-                cmdDisable.Enabled = true);
+            return true;
         }
 
         void Logger_Logged(string message) {
