@@ -141,7 +141,7 @@ namespace WurmStreamGimmicks {
 
                 // Do we monitor characters outside the selected ones at all?
                 if (ThirdParty) {
-                    match = Regex.Match(line, String.Format(@"(\w+) attaches.+to the {0}", Itemname));
+                    match = Regex.Match(line, String.Format(@"(\w+) attaches.+to the {0}", Itemname.ToLowerInvariant()));
 
                     // Does this line match the third party character pattern?
                     if (match.Success && !Players.Contains(match.Groups[1].Value)) {
