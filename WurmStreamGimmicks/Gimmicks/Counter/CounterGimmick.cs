@@ -51,17 +51,31 @@ namespace WurmStreamGimmicks {
         }
 
         public void Watch(string line) {
-            Core.Logger.Log(LogLevel.Fine, "{0} watching line '{1}'.", this.Name, line);
+            Core.Logger.Log(LogLevel.Finer, "{0} watching line '{1}'.", this.Name, line);
 
             if (System.Text.RegularExpressions.Regex.IsMatch(line, Pattern)) {
                 SessionCount++;
                 GlobalCount++;
-                System.IO.File.WriteAllText(this.OutputFile, this.Compile());
+                Write();
             }
         }
 
         public string Compile() {
-            return Template.Replace("%c", GlobalCount.ToString("N0")).Replace("%s", SessionCount.ToString("N0"));
+            string compiled = Template.Replace("%c", GlobalCount.ToString("N0")).Replace("%s", SessionCount.ToString("N0"));
+
+            Core.Logger.Log(LogLevel.Finer, "{0} compiling {1} into {2}.", Name, Template, compiled);
+
+            return compiled;
+        }
+
+        private void Write() {
+            try {
+                System.IO.File.WriteAllText(OutputFile, Compile());
+            }
+            catch (Exception e) {
+                Core.Logger.Log(LogLevel.Severe, "{0} could not write its output to '{1}'.", Name, OutputFile);
+                Core.Logger.Log(LogLevel.Severe, e.ToString());
+            }
         }
 
         public void Serialise(MyWriter writer) {

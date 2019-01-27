@@ -98,8 +98,8 @@ namespace WurmStreamGimmicks {
                     this.Pattern = String.Format("You attach.+to the {0}", Itemname.ToLowerInvariant());
                     Core.Logger.Log(LogLevel.Config, "Forcing {0}'s trigger pattern to '{1}'.", this.Name, this.Pattern);
 
-                    try { System.IO.File.WriteAllText(OutputFile, Compile()); }
-
+                    // Update the output file.
+                    Write();
                 } // if (match.success)
                 else {
                     Core.Logger.Log(LogLevel.Fine, "The line does not seem to describe an unfinished item under construction.");
