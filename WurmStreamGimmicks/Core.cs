@@ -97,12 +97,6 @@ namespace WurmStreamGimmicks {
 
             foreach (Player player in Player.Table.Values)
                 player.Dispose();
-
-            return;
-            string _Item = "Corbita";
-            string line = @"[12:16:59] You attach a peg to the corbita.";
-            Console.WriteLine(Regex.IsMatch(line, String.Format(@"You attach.+to the {0}", _Item.ToLower())));
-            Console.WriteLine(Regex.IsMatch(line, String.Format(@"attaches.+to the {0}", _Item.ToLower())));
         }
     }
 }
