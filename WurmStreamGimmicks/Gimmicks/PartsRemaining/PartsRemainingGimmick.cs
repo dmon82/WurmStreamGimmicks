@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WurmStreamGimmicks {
     class PartsRemainingGimmick : IGimmick {
-        public static readonly string Tooltip = "%t = total part count, %r = parts remaining, %a = parts attached, %i = item name";
+        public static readonly string Tooltip = "%t = total part, %r = remaining, %a = attached, %i = itemname\r\nLeave \"Item name\" empty and examine the unfinished item instead!";
 
         public string Name { get; set; }
         public LogType Logs { get; set; }
