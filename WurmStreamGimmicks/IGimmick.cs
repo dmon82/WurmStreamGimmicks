@@ -45,7 +45,7 @@ namespace WurmStreamGimmicks {
         ///     Watch a line from event, combat, or skills log.
         /// </summary>
         /// <param name="line">The line from the logfile.</param>
-        void Watch(string line);
+        void Watch(string line, Player player);
 
         /// <summary>
         ///     Compiles the text output of the gimmick as per configuration.

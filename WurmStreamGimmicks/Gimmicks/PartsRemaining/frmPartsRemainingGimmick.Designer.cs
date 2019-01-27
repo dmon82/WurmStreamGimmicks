@@ -47,6 +47,7 @@
             this.lblItemname = new System.Windows.Forms.Label();
             this.lblTotalParts = new System.Windows.Forms.Label();
             this.lblPartsAttached = new System.Windows.Forms.Label();
+            this.chkThirdParties = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numTotalParts)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPartsAttached)).BeginInit();
             this.SuspendLayout();
@@ -83,7 +84,7 @@
             this.cmdCancel.Location = new System.Drawing.Point(380, 388);
             this.cmdCancel.Name = "cmdCancel";
             this.cmdCancel.Size = new System.Drawing.Size(75, 23);
-            this.cmdCancel.TabIndex = 23;
+            this.cmdCancel.TabIndex = 24;
             this.cmdCancel.Text = "&Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
             // 
@@ -92,7 +93,7 @@
             this.cmdOK.Location = new System.Drawing.Point(299, 388);
             this.cmdOK.Name = "cmdOK";
             this.cmdOK.Size = new System.Drawing.Size(75, 23);
-            this.cmdOK.TabIndex = 22;
+            this.cmdOK.TabIndex = 23;
             this.cmdOK.Text = "&OK";
             this.cmdOK.UseVisualStyleBackColor = true;
             // 
@@ -102,7 +103,7 @@
             this.chkCollective.Location = new System.Drawing.Point(220, 281);
             this.chkCollective.Name = "chkCollective";
             this.chkCollective.Size = new System.Drawing.Size(136, 17);
-            this.chkCollective.TabIndex = 15;
+            this.chkCollective.TabIndex = 16;
             this.chkCollective.Text = "Monitor AL&L characters";
             this.chkCollective.UseVisualStyleBackColor = true;
             // 
@@ -217,10 +218,10 @@
             // 
             // txtItemname
             // 
-            this.txtItemname.Location = new System.Drawing.Point(94, 304);
+            this.txtItemname.Location = new System.Drawing.Point(95, 304);
             this.txtItemname.Name = "txtItemname";
             this.txtItemname.Size = new System.Drawing.Size(361, 20);
-            this.txtItemname.TabIndex = 17;
+            this.txtItemname.TabIndex = 18;
             // 
             // numTotalParts
             // 
@@ -232,7 +233,7 @@
             0});
             this.numTotalParts.Name = "numTotalParts";
             this.numTotalParts.Size = new System.Drawing.Size(120, 20);
-            this.numTotalParts.TabIndex = 19;
+            this.numTotalParts.TabIndex = 20;
             // 
             // numPartsAttached
             // 
@@ -244,7 +245,7 @@
             0});
             this.numPartsAttached.Name = "numPartsAttached";
             this.numPartsAttached.Size = new System.Drawing.Size(120, 20);
-            this.numPartsAttached.TabIndex = 21;
+            this.numPartsAttached.TabIndex = 22;
             // 
             // lblItemname
             // 
@@ -252,7 +253,7 @@
             this.lblItemname.Location = new System.Drawing.Point(5, 307);
             this.lblItemname.Name = "lblItemname";
             this.lblItemname.Size = new System.Drawing.Size(59, 13);
-            this.lblItemname.TabIndex = 16;
+            this.lblItemname.TabIndex = 17;
             this.lblItemname.Text = "&Item name:";
             // 
             // lblTotalParts
@@ -261,7 +262,7 @@
             this.lblTotalParts.Location = new System.Drawing.Point(5, 332);
             this.lblTotalParts.Name = "lblTotalParts";
             this.lblTotalParts.Size = new System.Drawing.Size(60, 13);
-            this.lblTotalParts.TabIndex = 18;
+            this.lblTotalParts.TabIndex = 19;
             this.lblTotalParts.Text = "Total parts:";
             // 
             // lblPartsAttached
@@ -270,8 +271,18 @@
             this.lblPartsAttached.Location = new System.Drawing.Point(5, 358);
             this.lblPartsAttached.Name = "lblPartsAttached";
             this.lblPartsAttached.Size = new System.Drawing.Size(79, 13);
-            this.lblPartsAttached.TabIndex = 20;
+            this.lblPartsAttached.TabIndex = 21;
             this.lblPartsAttached.Text = "Parts attached:";
+            // 
+            // chkThirdParties
+            // 
+            this.chkThirdParties.AutoSize = true;
+            this.chkThirdParties.Location = new System.Drawing.Point(220, 258);
+            this.chkThirdParties.Name = "chkThirdParties";
+            this.chkThirdParties.Size = new System.Drawing.Size(183, 17);
+            this.chkThirdParties.TabIndex = 15;
+            this.chkThirdParties.Text = "Monitor other people\'s characters";
+            this.chkThirdParties.UseVisualStyleBackColor = true;
             // 
             // frmPartsRemainingGimmick
             // 
@@ -279,6 +290,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(465, 421);
+            this.Controls.Add(this.chkThirdParties);
             this.Controls.Add(this.lblPartsAttached);
             this.Controls.Add(this.lblTotalParts);
             this.Controls.Add(this.lblItemname);
@@ -341,5 +353,6 @@
         private System.Windows.Forms.Label lblItemname;
         private System.Windows.Forms.Label lblTotalParts;
         private System.Windows.Forms.Label lblPartsAttached;
+        private System.Windows.Forms.CheckBox chkThirdParties;
     }
 }

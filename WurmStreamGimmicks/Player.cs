@@ -109,7 +109,7 @@ namespace WurmStreamGimmicks {
             int count = _Gimmicks.Count;
 
             for (int i = 0; i < count; i++)
-                if (this[i].Enabled && (this[i].Logs & logType) == logType) this[i].Watch(line);
+                if (this[i].Enabled && (this[i].Logs & logType) == logType) this[i].Watch(line, this);
         }
 
         public void EndWatch() {

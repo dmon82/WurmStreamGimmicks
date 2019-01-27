@@ -116,6 +116,7 @@ namespace WurmStreamGimmicks {
                 frm.numTotalParts.Value = parts.TotalParts;
                 frm.numPartsAttached.Value = parts.PartsAttached;
                 frm.txtOutputFile.Text = parts.OutputFile;
+                frm.chkThirdParties.Checked = parts.ThirdParty;
 
                 if (!(frm.chkCollective.Checked = parts.Collective))
                     foreach (string player in parts.Players)
@@ -132,7 +133,7 @@ namespace WurmStreamGimmicks {
             }
 
             if (gimmick == null) {
-                gimmick = new PartsRemainingGimmick(
+                gimmick = parts = new PartsRemainingGimmick(
                     frm.txtName.Text,
                     string.Empty,
                     frm.txtOutput.Text,
@@ -146,6 +147,7 @@ namespace WurmStreamGimmicks {
                     (frm.chkEvents.Checked ? LogType.Events : LogType.None) |
                     (frm.chkCombat.Checked ? LogType.Combat : LogType.None) |
                     (frm.chkSkills.Checked ? LogType.Skills : LogType.None); // Bitmask.
+                parts.ThirdParty = frm.chkThirdParties.Checked;
             }
             else {
                 parts.Name = frm.txtName.Text;
@@ -159,10 +161,11 @@ namespace WurmStreamGimmicks {
                     (frm.chkEvents.Checked ? LogType.Events : LogType.None) |
                     (frm.chkCombat.Checked ? LogType.Combat : LogType.None) |
                     (frm.chkSkills.Checked ? LogType.Skills : LogType.None); // Bitmask.
+                parts.ThirdParty = frm.chkThirdParties.Checked;
                 parts.TotalParts = (int)frm.numTotalParts.Value;
                 parts.PartsAttached = (int)frm.numPartsAttached.Value;
                 parts.Itemname = frm.txtItemname.Text;
-
+                
                 try {
                     if (!System.IO.File.Exists(gimmick.OutputFile))
                         System.IO.File.CreateText(gimmick.OutputFile).Dispose();

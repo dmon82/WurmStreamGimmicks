@@ -27,6 +27,28 @@ namespace WurmStreamGimmicks {
         public int TotalParts { get; set; }
         public int PartsAttached { get; set; }
 
+        private bool _ThirdParty = false;
+        /// <summary>
+        ///     Gets or sets if characters that aren't monitored directly should count towards attached parts.
+        /// </summary>
+        public bool ThirdParty {
+            get { return _ThirdParty; }
+            set {
+                if (value == _ThirdParty) return;
+
+                if (value) _ThirdParties = new Dictionary<string, DateTime>();
+                else _ThirdParties = null;
+
+                _ThirdParty = value;
+            }
+        }
+
+        /// <summary>
+        ///     Tracks the time stamps of third parties attaching parts. This is used when two or more local
+        ///     characters are monitored, seeing an outside party character attaching parts.
+        /// </summary>
+        private Dictionary<string, DateTime> _ThirdParties;
+
         public PartsRemainingGimmick(string name, string pattern, string template, bool collective, bool events, bool combat, bool skills, List<string> players) {
             Name = name;
             Pattern = pattern;
@@ -59,22 +81,22 @@ namespace WurmStreamGimmicks {
                 .Replace("%i", Itemname);
         }
 
-        public void Watch(string line) {
+        public void Watch(string line, Player player) {
             Core.Logger.Log(LogLevel.Finer, "{0} watching line '{1}'.", Name, line);
 
-            // While the item name is empty, the gimmick is considered uninitialised.
-            if (string.Empty.Equals(this.Itemname)) {
-                // Matches against this line, grouping it by item name (group 1), and the listing of parts (group 2).
-                Match match = Regex.Match(line, "You see a (.+) under construction.+needs (.+) to be finished");
+            // Matches against this line, grouping it by item name (group 1), and the listing of parts (group 2).
+            Match match = Regex.Match(line, "You see a (.+) under construction.+needs (.+) to be finished");
 
-                // The match has to be a complete success to be considered an examine on an unfinished item.
-                if (match.Success) {
-                    Core.Logger.Log(LogLevel.Config, "{0} not initialised, unfinished item was examined.", Name);
+            // The match has to be a complete success to be considered an examine on an unfinished item.
+            if (match.Success) {
+                Core.Logger.Log(LogLevel.Config, "{0} not initialised, unfinished item was examined.", Name);
 
-                    // Capitalise the first letter or not?
-                    this.Itemname = match.Groups[1].Value.Substring(0, 1).ToUpperInvariant() +
-                        match.Groups[1].Value.Substring(1);
-                    Core.Logger.Log(LogLevel.Config, "{0} will use {1} as the unfinished item.", Name, Itemname);
+                // Capitalise the first letter or not?
+                string itemName = match.Groups[1].Value.Substring(0, 1).ToUpperInvariant() +
+                    match.Groups[1].Value.Substring(1);
+
+                if (string.Empty.Equals(this.Itemname) || itemName.Equals(Itemname, StringComparison.InvariantCultureIgnoreCase)) {
+                    Core.Logger.Log(LogLevel.Config, "{0} will use {1} as the unfinished item or update it.", Name, Itemname);
 
                     // Match only digit characters into a match collection.
                     MatchCollection matches = Regex.Matches(match.Groups[2].Value, @"\d+");
@@ -94,26 +116,58 @@ namespace WurmStreamGimmicks {
                     matches = null;
 
                     Core.Logger.Log(LogLevel.Config, "{0:N0} total parts required for the unfinished {1}", TotalParts, Itemname);
-                    
+
                     this.Pattern = String.Format("You attach.+to the {0}", Itemname.ToLowerInvariant());
                     Core.Logger.Log(LogLevel.Config, "Forcing {0}'s trigger pattern to '{1}'.", this.Name, this.Pattern);
 
                     // Update the output file.
                     Write();
-                } // if (match.success)
-                else {
-                    Core.Logger.Log(LogLevel.Fine, "The line does not seem to describe an unfinished item under construction.");
-                } // end if (match.Success)
-
-                match = null;
-            } // if (string.Empty.Equals(this.Itemname))
+                }
+            } // if (match.success)
             else {
+                Core.Logger.Log(LogLevel.Fine, "The line does not seem to describe an unfinished item under construction.");
+            } // end if (match.Success)
+
+            match = null;
+
+            // While the item name is empty, the gimmick is considered uninitialised.
+            if (!string.Empty.Equals(this.Itemname)) {
                 if (Regex.IsMatch(line, Pattern)) {
                     PartsAttached++;
                     Write();
 
                     Core.Logger.Log(LogLevel.Fine, "{0:N0} parts have been attached to {1}, {2:N0} parts remaining.", PartsAttached, Itemname, TotalParts - PartsAttached);
                 }
+
+                // Do we monitor characters outside the selected ones at all?
+                if (ThirdParty) {
+                    match = Regex.Match(line, String.Format(@"(\w+) attaches.+to the {0}", Itemname));
+
+                    // Does this line match the third party character pattern?
+                    if (match.Success && !Players.Contains(match.Groups[1].Value)) {
+                        // Have we seen this character attach parts before?
+                        if (_ThirdParties.ContainsKey(match.Groups[1].Value)) {
+                            // Has this message been seen in the same second?
+                            if (_ThirdParties[match.Groups[1].Value].EqualsToTheSecond(DateTime.Now)) {
+                                Core.Logger.Log(LogLevel.Finer, "{0} found duplicate third party character message from {1}.", Name, match.Groups[1].Value);
+                            }
+                            else {
+                                Core.Logger.Log(LogLevel.Finer, "{0} found unique or first third party character message from {1}.", Name, match.Groups[1].Value);
+                                _ThirdParties[match.Groups[1].Value] = DateTime.Now;
+                                PartsAttached++;
+                                Write();
+                            } // end if (seen in same second?)
+                        } // if (seen character before?)
+                        else {
+                            Core.Logger.Log(LogLevel.Finer, "{0} found first third party character {1} attaching parts.", Name, match.Groups[1].Value);
+                            _ThirdParties.Add(match.Groups[1].Value, DateTime.Now);
+                            PartsAttached++;
+                            Write();
+                        } // end if (seen this character before?)
+                    } // end if (regex match on 3rd party character?)
+
+                    match = null;
+                } // end if (ThirdParty)
             } // end if (string.Empty.Equals(this.Itemname))
         }
 
@@ -146,6 +200,7 @@ namespace WurmStreamGimmicks {
             writer.Write(Itemname);
             writer.Write(TotalParts);
             writer.Write(PartsAttached);
+            writer.Write(ThirdParty);
         }
 
         public void Deserialise(MyReader reader) {
@@ -167,6 +222,9 @@ namespace WurmStreamGimmicks {
             Itemname = reader.ReadString();
             TotalParts = reader.ReadInt();
             PartsAttached = reader.ReadInt();
+            ThirdParty = reader.ReadBoolean();
+
+            if (ThirdParty) _ThirdParties = new Dictionary<string, DateTime>();
         }
     }
     /*class PartsRemainingGimmick : BaseGimmick {

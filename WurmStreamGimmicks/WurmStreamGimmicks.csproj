@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="Extentions.cs" />
     <Compile Include="Gimmicks\PartsRemaining\frmPartsRemainingGimmick.cs">
       <SubType>Form</SubType>
     </Compile>

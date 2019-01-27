@@ -50,7 +50,7 @@ namespace WurmStreamGimmicks {
             SessionCount = 0;
         }
 
-        public void Watch(string line) {
+        public void Watch(string line, Player player) {
             Core.Logger.Log(LogLevel.Finer, "{0} watching line '{1}'.", this.Name, line);
 
             if (System.Text.RegularExpressions.Regex.IsMatch(line, Pattern)) {
