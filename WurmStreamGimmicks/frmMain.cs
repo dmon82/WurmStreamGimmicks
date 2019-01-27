@@ -161,6 +161,9 @@ namespace WurmStreamGimmicks {
                 case "CounterGimmick":
                     gimmick = frmCounterGimmick.GetGimmick(gimmick, this);
                     break;
+                case "PartsRemainingGimmick":
+                    gimmick = frmPartsRemainingGimmick.GetGimmick(gimmick, this);
+                    break;
                 default:
                     throw new NotImplementedException("This gimmick has not been implemented properly?");
             }
@@ -172,9 +175,9 @@ namespace WurmStreamGimmicks {
             if (!Core.Config.Gimmicks.Contains(gimmick)) Core.Config.Gimmicks.Add(gimmick);
 
             foreach (Player player in Player.Table.Values)
-                if (gimmick.Players.Contains(player.Name) && !player.Gimmicks.Contains(gimmick))
+                if ((gimmick.Collective || gimmick.Players.Contains(player.Name)) && !player.Gimmicks.Contains(gimmick))
                     player.Gimmicks.Add(gimmick);
-                else if (!gimmick.Players.Contains(player.Name) && player.Gimmicks.Contains(gimmick))
+                else if ((!gimmick.Collective && !gimmick.Players.Contains(player.Name)) && player.Gimmicks.Contains(gimmick))
                     player.Gimmicks.Remove(gimmick);
         }
 
