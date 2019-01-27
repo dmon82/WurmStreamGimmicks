@@ -68,7 +68,7 @@ namespace WurmStreamGimmicks {
             return compiled;
         }
 
-        private void Write() {
+        private void Write() {  
             try {
                 System.IO.File.WriteAllText(OutputFile, Compile());
             }

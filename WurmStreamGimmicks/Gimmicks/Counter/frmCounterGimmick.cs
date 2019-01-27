@@ -14,7 +14,7 @@ namespace WurmStreamGimmicks {
             InitializeComponent();
 
             foreach (Player player in Player.Table.Values)
-                listPlayers.Items.Add(player, false);
+                listPlayers.Items.Add(player.Name, false);
 
             lblHelp.Text = CounterGimmick.Tooltip;
             chkCollective.CheckedChanged += chkCollective_CheckedChanged;
@@ -131,14 +131,6 @@ namespace WurmStreamGimmicks {
                 return gimmick;
             }
 
-            System.Collections.IEnumerator list = frm.listPlayers.CheckedItems.GetEnumerator();
-            List<string> players = new List<string>();
-
-            while (list.MoveNext())
-                players.Add(((Player)list.Current).Name);
-
-            list = null;
-
             if (gimmick == null) {
                 gimmick = new CounterGimmick(
                     frm.txtName.Text,
@@ -148,7 +140,7 @@ namespace WurmStreamGimmicks {
                     frm.chkEvents.Checked,
                     frm.chkCombat.Checked,
                     frm.chkSkills.Checked,
-                    players);
+                    frm.chkCollective.Checked ? null : frm.listPlayers.CheckedItems.Cast<string>().ToList());
                 gimmick.OutputFile = frm.txtOutputFile.Text;
                 gimmick.Logs =
                     (frm.chkEvents.Checked ? LogType.Events : LogType.None) |
@@ -175,18 +167,13 @@ namespace WurmStreamGimmicks {
                 if (!System.IO.File.Exists(counter.OutputFile))
                     System.IO.File.CreateText(counter.OutputFile).Dispose();
 
-                if (counter.Collective & counter.Players != null) {
+                if (counter.Players != null) {
                     counter.Players.Clear();
                     counter.Players = null;
                 }
-                else if (!counter.Collective) {
-                    if (counter.Players == null) counter.Players = players;
-                    else {
-                        counter.Players.Clear();
-                        counter.Players = null;
-                        counter.Players = players;
-                    }
-                }
+
+                if (!counter.Collective)
+                    counter.Players = frm.listPlayers.CheckedItems.Cast<string>().ToList();
             }
 
             return gimmick;
