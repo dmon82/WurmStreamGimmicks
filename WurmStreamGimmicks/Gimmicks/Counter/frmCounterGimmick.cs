@@ -30,7 +30,7 @@ namespace WurmStreamGimmicks {
         void cmdBrowseOutputFile_Click(object sender, EventArgs e) {
             SaveFileDialog save = new SaveFileDialog();
             save.Title = "Select an output file (may override another output file)";
-            save.Filter = "Text file (*.txt)|*.txt.|All files (*.*)|*.*";
+            save.Filter = "Text file (*.txt)|*.txt|All files (*.*)|*.*";
             save.FilterIndex = 1;
             save.CheckFileExists = false;
             save.CheckPathExists = true;
@@ -171,6 +171,7 @@ namespace WurmStreamGimmicks {
                     (frm.chkCombat.Checked ? LogType.Combat : LogType.None) |
                     (frm.chkSkills.Checked ? LogType.Skills : LogType.None); // Bitmask.
 
+                // Create file even though it's empty, helps with setting up OBS.
                 if (!System.IO.File.Exists(counter.OutputFile))
                     System.IO.File.CreateText(counter.OutputFile).Dispose();
 
