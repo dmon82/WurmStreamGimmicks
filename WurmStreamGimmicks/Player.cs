@@ -53,9 +53,9 @@ namespace WurmStreamGimmicks {
             if (!_Watching) {
                 Core.Logger.Log(LogLevel.Info, "Have to initialise watch on {0} first though.", this);
 
-                string eventFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Event.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
-                string combatFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Combat.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
-                string skillsFile = String.Format(@"d:\games\wurm\players\{0}\logs\_Skills.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month);
+                string eventFile = Path.Combine(Core.Config.PlayersFolder, String.Format(@"{0}\logs\_Event.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month));
+                string combatFile = Path.Combine(Core.Config.PlayersFolder, String.Format(@"{0}\logs\_Combat.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month));
+                string skillsFile = Path.Combine(Core.Config.PlayersFolder, String.Format(@"{0}\logs\_Skills.{1}-{2:D2}.txt", this.Name, DateTime.Now.Year, DateTime.Now.Month));
 
                 EventsWatcher = new FileWatcher(eventFile);
                 CombatWatcher = new FileWatcher(combatFile);
