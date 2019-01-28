@@ -80,13 +80,13 @@ namespace WurmStreamGimmicks {
 
         public static Random Rng = new Random();
 
+        internal static string _ConfigFilename = Path.Combine(Core.BaseDirectory, "config.bin");
+
         [STAThreadAttribute()]
         public static void Main(string[] args) {
             try {
-                string configFilename = Path.Combine(Core.BaseDirectory, "config.bin");
-
-                if (!File.Exists(configFilename)) _Config = WurmStreamGimmicks.Config.Initialise(configFilename);
-                else using (MyReader reader = new MyReader(configFilename)) { _Config = new WurmStreamGimmicks.Config(); _Config.Deserialise(reader); reader.Close(); }
+                if (!File.Exists(_ConfigFilename)) _Config = WurmStreamGimmicks.Config.Initialise(_ConfigFilename);
+                else using (MyReader reader = new MyReader(_ConfigFilename)) { _Config = new WurmStreamGimmicks.Config(); _Config.Deserialise(reader); reader.Close(); }
 
                 try { Application.Run(new frmMain()); }
                 catch (Exception e) {
@@ -94,7 +94,7 @@ namespace WurmStreamGimmicks {
                     Core.Logger.Log(LogLevel.Severe, e.ToString());
                 }
 
-                using (MyWriter writer = new MyWriter(configFilename)) {
+                using (MyWriter writer = new MyWriter(_ConfigFilename)) {
                     _Config.Serialise(writer);
                     writer.Flush();
                     writer.Close();
@@ -112,6 +112,14 @@ namespace WurmStreamGimmicks {
                     File.AppendAllText("unloggable_exception.txt", e.ToString());
                     File.AppendAllText("unloggable_exception.txt", inner.ToString());
                 }
+            }
+        }
+
+        public static void Serialise() {
+            using (MyWriter writer = new MyWriter(_ConfigFilename)) {
+                    _Config.Serialise(writer);
+                    writer.Flush();
+                    writer.Close();
             }
         }
     }

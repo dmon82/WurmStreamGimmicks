@@ -179,6 +179,9 @@ namespace WurmStreamGimmicks {
                     player.Gimmicks.Add(gimmick);
                 else if ((!gimmick.Collective && !gimmick.Players.Contains(player.Name)) && player.Gimmicks.Contains(gimmick))
                     player.Gimmicks.Remove(gimmick);
+
+            Core.Logger.Log(LogLevel.Info, "Saving config and gimmicks.");
+            Core.Serialise();
         }
 
         void AddGimmickToList(IGimmick gimmick) {
