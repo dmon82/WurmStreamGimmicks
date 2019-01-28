@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace WurmStreamGimmicks {
     internal class Logger : IDisposable {
@@ -24,6 +24,8 @@ namespace WurmStreamGimmicks {
         private StreamWriter _Writer;
 
         public event LogEventHandler Logged;
+
+        private object _Lock = new object();
 
         public Logger(string name, LogLevel level) {
             if (string.IsNullOrEmpty(name))
@@ -68,20 +70,22 @@ namespace WurmStreamGimmicks {
         }
 
         public void Log(LogLevel level, string message) {
-            if (level < _Level)
-                return;
+            lock (_Lock) {
+                if (level < _Level)
+                    return;
 
-            string output = String.Format(":: {0}{1} :: [{2}] :: {3}",
-                level.ToString().ToUpper(), _Spaces[7 - level.ToString().Length],
-                DateTime.Now.ToLongTimeString(),
-                message);
+                string output = String.Format(":: {0}{1} :: [{2}] :: {3}",
+                    level.ToString().ToUpper(), _Spaces[7 - level.ToString().Length],
+                    DateTime.Now.ToLongTimeString(),
+                    message);
 
-            _Writer.WriteLine(output);
-            _Writer.Flush();
+                _Writer.WriteLine(output);
+                _Writer.Flush();
 
-            if (level >= _Level) {
-                Console.WriteLine(output);
-                if (Logged != null) Logged(output);
+                if (level >= _Level) {
+                    Console.WriteLine(output);
+                    if (Logged != null) Logged(output);
+                }
             }
         }
 
