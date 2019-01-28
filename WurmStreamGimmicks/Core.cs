@@ -82,21 +82,37 @@ namespace WurmStreamGimmicks {
 
         [STAThreadAttribute()]
         public static void Main(string[] args) {
-            string configFilename = Path.Combine(Core.BaseDirectory, "config.bin");
+            try {
+                string configFilename = Path.Combine(Core.BaseDirectory, "config.bin");
 
-            if (!File.Exists(configFilename)) _Config = WurmStreamGimmicks.Config.Initialise(configFilename);
-            else using (MyReader reader = new MyReader(configFilename)) { _Config = new WurmStreamGimmicks.Config(); _Config.Deserialise(reader); reader.Close(); }
+                if (!File.Exists(configFilename)) _Config = WurmStreamGimmicks.Config.Initialise(configFilename);
+                else using (MyReader reader = new MyReader(configFilename)) { _Config = new WurmStreamGimmicks.Config(); _Config.Deserialise(reader); reader.Close(); }
 
-            Application.Run(new frmMain());
+                try { Application.Run(new frmMain()); }
+                catch (Exception e) {
+                    Core.Logger.Log(LogLevel.Severe, "Exception in the GUI window.");
+                    Core.Logger.Log(LogLevel.Severe, e.ToString());
+                }
 
-            using (MyWriter writer = new MyWriter(configFilename)) {
-                _Config.Serialise(writer);
-                writer.Flush();
-                writer.Close();
+                using (MyWriter writer = new MyWriter(configFilename)) {
+                    _Config.Serialise(writer);
+                    writer.Flush();
+                    writer.Close();
+                }
+
+                foreach (Player player in Player.Table.Values)
+                    player.Dispose();
             }
-
-            foreach (Player player in Player.Table.Values)
-                player.Dispose();
+            catch (Exception e) {
+                try {
+                    Core.Logger.Log(LogLevel.Severe, "Main loop exception.");
+                    Core.Logger.Log(LogLevel.Severe, e.ToString());
+                }
+                catch (Exception inner) {
+                    File.AppendAllText("unloggable_exception.txt", e.ToString());
+                    File.AppendAllText("unloggable_exception.txt", inner.ToString());
+                }
+            }
         }
     }
 }
