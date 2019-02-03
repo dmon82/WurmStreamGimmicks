@@ -76,7 +76,7 @@ namespace WurmStreamGimmicks {
         private static Config _Config = null;
         internal static Config Config { get { return _Config; } }
 
-        internal static readonly Logger Logger = new Logger("Core", LogLevel.Always);
+        internal static readonly Logger Logger = new Logger("Core", LogLevel.Config);
 
         public static Random Rng = new Random();
 
@@ -117,9 +117,9 @@ namespace WurmStreamGimmicks {
 
         public static void Serialise() {
             using (MyWriter writer = new MyWriter(_ConfigFilename)) {
-                    _Config.Serialise(writer);
-                    writer.Flush();
-                    writer.Close();
+                _Config.Serialise(writer);
+                writer.Flush();
+                writer.Close();
             }
         }
     }
