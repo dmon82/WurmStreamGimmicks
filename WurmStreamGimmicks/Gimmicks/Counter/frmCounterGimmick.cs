@@ -116,7 +116,7 @@ namespace WurmStreamGimmicks {
                 frm.numGlobal.Value = counter.GlobalCount;
                 frm.numSession.Value = counter.SessionCount;
 
-                if (!frm.chkCollective.Checked) {
+                if (!frm.chkCollective.Checked && counter.Players != null) {
                     foreach (string player in counter.Players)
                         frm.listPlayers.SetItemChecked(frm.listPlayers.Items.IndexOf(player), true);
                 }

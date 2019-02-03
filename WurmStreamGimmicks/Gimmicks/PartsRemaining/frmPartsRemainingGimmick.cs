@@ -118,7 +118,7 @@ namespace WurmStreamGimmicks {
                 frm.txtOutputFile.Text = parts.OutputFile;
                 frm.chkThirdParties.Checked = parts.ThirdParty;
 
-                if (!(frm.chkCollective.Checked = parts.Collective))
+                if (!(frm.chkCollective.Checked = parts.Collective) && parts.Players != null)
                     foreach (string player in parts.Players)
                         frm.listPlayers.SetItemChecked(frm.listPlayers.Items.IndexOf(player), true);
             }
