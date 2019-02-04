@@ -101,17 +101,23 @@ namespace WurmStreamGimmicks {
                     // Match only digit characters into a match collection.
                     MatchCollection matches = Regex.Matches(match.Groups[2].Value, @"\d+");
                     int count;
+                    int remain = 0;
 
                     // Try and parse them all, "should" never fail but using TryParse anyway.
                     foreach (Match part in matches) {
                         if (int.TryParse(part.Value, out count)) {
                             Core.Logger.Log(LogLevel.Config, "Adding {0:N0} parts to {1:N0} total parts required.", count, TotalParts);
-                            TotalParts += count;
+                            remain += count;
                         }
                         else {
                             Core.Logger.Log(LogLevel.Severe, "'{0}' could not be parsed as a number of parts of the unfinished item.", part.Value);
                         }
                     }
+
+                    if (this.Itemname.Equals(string.Empty))
+                        TotalParts = remain; // Only set of item was uninitialised.
+
+                    PartsAttached = TotalParts - remain;
 
                     matches = null;
 
@@ -119,6 +125,8 @@ namespace WurmStreamGimmicks {
 
                     this.Pattern = String.Format("You attach.+to the {0}", Itemname.ToLowerInvariant());
                     Core.Logger.Log(LogLevel.Config, "Forcing {0}'s trigger pattern to '{1}'.", this.Name, this.Pattern);
+
+                    Itemname = itemName;
 
                     // Update the output file.
                     Write();
